@@ -1,0 +1,33 @@
+# Managed by ChefEnv
+require 'yaml'
+
+CHEF_ENV = ENV['CHEF_ENV'] || "default"
+CHEF_ENV_HOME = "#{ENV['HOME']}/.chefenv"
+ACTIVE_ENV_DIR = "#{CHEF_ENV_HOME}/#{CHEF_ENV}"
+
+env_config = YAML.load_file("#{ACTIVE_ENV_DIR}/config.yml")
+
+client_key               "#{ACTIVE_ENV_DIR}/user.pem"
+validation_key           "#{ACTIVE_ENV_DIR}/validator.pem"
+
+chef_server_url          env_config["chef_server_url"]
+log_level                env_config["log_level"] || :info
+log_location             env_config["log_location"] || STDOUT
+node_name                env_config["node_name"]
+validation_client_name   env_config["validator"] || "chef-validator"
+
+ssl_verify_mode          env_config["ssl_verify_mode"] || :verify_none
+cache_type               'BasicFile'
+cache_options( :path => "#{ACTIVE_ENV_DIR}/checksums" )
+cookbook_path            ["#{ACTIVE_ENV_DIR}/cookbooks", "#{ACTIVE_ENV_DIR}/site_cookbooks"]
+rubygems_version         "1.8.12"
+
+# AWS config
+knife[:aws_access_key_id]     = env_config['aws']['access_key'] rescue nil
+knife[:aws_secret_access_key] = env_config['aws']['secret_key'] rescue nil
+knife[:region]                = env_config['aws']['region'] rescue nil
+
+# Rackspace config
+knife[:rackspace_api_username] = env_config['rackspace']['username'] rescue nil
+knife[:rackspace_api_key]      = env_config['rackspace']['api_key']  rescue nil
+knife[:rackspace_region]       = env_config['rackspace']['region'] rescue nil

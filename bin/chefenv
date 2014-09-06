@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+libpath = File.expand_path("../lib", File.dirname(__FILE__))
+unless $LOAD_PATH.include?(libpath)
+   $LOAD_PATH.unshift(libpath)
+end
+
+require 'thor'
+require 'chefenv'
+
+
+ChefEnv::Cli.start(ARGV)
